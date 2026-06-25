@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/login_page.dart';
+import 'pages/splash_screen_page.dart';
 
 void main() {
   runApp(const MovieApp());
@@ -25,7 +25,7 @@ class MovieApp extends StatelessWidget {
         cardColor: const Color(0xFF161616),
         useMaterial3: true,
       ),
-      home: const LoginPage(),
+      home: const SplashScreenPage(),
     );
   }
 }
