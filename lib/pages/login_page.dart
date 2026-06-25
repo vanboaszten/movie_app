@@ -51,6 +51,8 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context) => HomePage(
                 userId: user['id'] as int,
                 userName: user['name'] ?? 'User',
+                userUsername: user['username'] ?? '',
+                userRole: user['role'] ?? 'user',
               ),
             ),
           );

@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import '../models/movie_model.dart';
-import '../data/dummy_movies.dart';
 import '../widgets/movie_card.dart';
 import 'login_page.dart';
 import 'favorite_page.dart';
+import 'profile_page.dart';
+import '../services/movie_service.dart';
+import 'admin_movie_management_page.dart';
 
 class HomePage extends StatefulWidget {
   final int userId;
   final String userName;
+  final String userUsername;
+  final String userRole;
 
-  const HomePage({super.key, required this.userId, required this.userName});
+  const HomePage({
+    super.key,
+    required this.userId,
+    required this.userName,
+    required this.userUsername,
+    required this.userRole,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -17,8 +27,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _searchController = TextEditingController();
+  final _movieService = MovieService();
   String _searchQuery = '';
   String _selectedGenre = 'All';
+  List<Movie> _allMovies = [];
+  bool _isLoading = true;
 
   final List<String> _genres = [
     'All',
@@ -36,6 +49,28 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _loadMovies();
+  }
+
+  Future<void> _loadMovies() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final movies = await _movieService.getAllMovies();
+      if (mounted) {
+        setState(() {
+          _allMovies = movies;
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -52,7 +87,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<Movie> get _filteredMovies {
-    return dummyMovies.where((movie) {
+    return _allMovies.where((movie) {
       // 1. Filter by Search Query (Title match, non-case-sensitive)
       final matchesSearch = movie.title.toLowerCase().contains(_searchQuery.toLowerCase());
 
@@ -124,6 +159,41 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.person_rounded, color: Colors.blueAccent),
+            tooltip: 'Profile',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage(
+                    userId: widget.userId,
+                    userName: widget.userName,
+                    userUsername: widget.userUsername,
+                    userRole: widget.userRole,
+                  ),
+                ),
+              );
+            },
+          ),
+          if (widget.userRole == 'admin')
+            IconButton(
+              icon: const Icon(Icons.movie_creation_rounded, color: Colors.greenAccent),
+              tooltip: 'Manage Movies',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AdminMovieManagementPage(
+                      userRole: widget.userRole,
+                      userId: widget.userId,
+                    ),
+                  ),
+                ).then((_) {
+                  _loadMovies();
+                });
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
             tooltip: 'Logout',
@@ -253,42 +323,48 @@ class _HomePageState extends State<HomePage> {
 
           // Movie Grid/List
           Expanded(
-            child: movies.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search_off_rounded, size: 64, color: Colors.grey[700]),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Film tidak ditemukan',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[400],
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Coba gunakan kata kunci atau genre lain',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE50914)),
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    itemCount: movies.length,
-                    itemBuilder: (context, index) {
-                      return MovieCard(
-                        movie: movies[index],
-                        userId: widget.userId,
-                      );
-                    },
-                  ),
+                : movies.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.search_off_rounded, size: 64, color: Colors.grey[700]),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Film tidak ditemukan',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[400],
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Coba gunakan kata kunci atau genre lain',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        itemCount: movies.length,
+                        itemBuilder: (context, index) {
+                          return MovieCard(
+                            movie: movies[index],
+                            userId: widget.userId,
+                          );
+                        },
+                      ),
           ),
         ],
       ),

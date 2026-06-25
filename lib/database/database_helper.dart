@@ -12,4 +12,5 @@ abstract class DatabaseHelper {
   Future<int> insert(String table, Map<String, dynamic> values, {String? conflictAlgorithm});
   Future<int> delete(String table, {String? where, List<Object?>? whereArgs});
   Future<List<Map<String, dynamic>>> query(String table, {String? where, List<Object?>? whereArgs, int? limit});
+  Future<int> update(String table, Map<String, dynamic> values, {String? where, List<Object?>? whereArgs});
 }

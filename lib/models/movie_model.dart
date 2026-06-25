@@ -34,17 +34,17 @@ class Movie {
     return {
       'id': id,
       'title': title,
-      'posterUrl': posterUrl,
-      'backdropUrl': backdropUrl,
+      'poster_url': posterUrl,
+      'backdrop_url': backdropUrl,
       'rating': rating,
       'genres': genres.join(','), // Store as comma-separated string in local database
-      'releaseYear': releaseYear,
+      'release_year': releaseYear,
       'synopsis': synopsis,
       'director': director,
       'duration': duration,
       'language': language,
-      'maturityRating': maturityRating,
-      'trailerUrl': trailerUrl,
+      'maturity_rating': maturityRating,
+      'trailer_url': trailerUrl,
     };
   }
 
@@ -53,21 +53,21 @@ class Movie {
     return Movie(
       id: map['id'] as int,
       title: map['title'] as String,
-      posterUrl: map['posterUrl'] as String,
-      backdropUrl: map['backdropUrl'] as String,
+      posterUrl: map['poster_url'] as String,
+      backdropUrl: map['backdrop_url'] as String,
       rating: (map['rating'] as num).toDouble(),
       genres: (map['genres'] as String)
           .split(',')
           .map((g) => g.trim())
           .where((g) => g.isNotEmpty)
           .toList(),
-      releaseYear: map['releaseYear'] as int,
+      releaseYear: map['release_year'] as int,
       synopsis: map['synopsis'] as String,
       director: map['director'] as String,
       duration: map['duration'] as String,
       language: map['language'] as String,
-      maturityRating: map['maturityRating'] as String,
-      trailerUrl: map['trailerUrl'] as String,
+      maturityRating: map['maturity_rating'] as String,
+      trailerUrl: map['trailer_url'] as String,
     );
   }
 
