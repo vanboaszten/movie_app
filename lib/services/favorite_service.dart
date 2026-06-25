@@ -1,4 +1,3 @@
-import 'package:sqflite/sqflite.dart';
 import '../database/database_helper.dart';
 import '../models/movie_model.dart';
 
@@ -7,8 +6,7 @@ class FavoriteService {
 
   /// Saves a movie as a favorite for a given user.
   Future<void> addFavorite(int userId, Movie movie) async {
-    final db = await _dbHelper.database;
-    await db.insert(
+    await _dbHelper.insert(
       'favorites',
       {
         'user_id': userId,
@@ -26,14 +24,13 @@ class FavoriteService {
         'maturity_rating': movie.maturityRating,
         'trailer_url': movie.trailerUrl,
       },
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: 'replace',
     );
   }
 
   /// Removes a movie from a user's favorites list.
   Future<void> removeFavorite(int userId, int movieId) async {
-    final db = await _dbHelper.database;
-    await db.delete(
+    await _dbHelper.delete(
       'favorites',
       where: 'user_id = ? AND movie_id = ?',
       whereArgs: [userId, movieId],
@@ -42,8 +39,7 @@ class FavoriteService {
 
   /// Checks if a movie is favorited by a user.
   Future<bool> isFavorite(int userId, int movieId) async {
-    final db = await _dbHelper.database;
-    final List<Map<String, dynamic>> results = await db.query(
+    final List<Map<String, dynamic>> results = await _dbHelper.query(
       'favorites',
       where: 'user_id = ? AND movie_id = ?',
       whereArgs: [userId, movieId],
@@ -54,8 +50,7 @@ class FavoriteService {
 
   /// Returns all favorited movies for a user.
   Future<List<Movie>> getFavorites(int userId) async {
-    final db = await _dbHelper.database;
-    final List<Map<String, dynamic>> results = await db.query(
+    final List<Map<String, dynamic>> results = await _dbHelper.query(
       'favorites',
       where: 'user_id = ?',
       whereArgs: [userId],

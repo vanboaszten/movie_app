@@ -8,9 +8,7 @@ class AuthService {
   /// Returns a [Map] containing user details if successful,
   /// or [null] if username and password combination is invalid.
   Future<Map<String, dynamic>?> login(String username, String password) async {
-    final db = await _dbHelper.database;
-
-    final List<Map<String, dynamic>> results = await db.query(
+    final List<Map<String, dynamic>> results = await _dbHelper.query(
       'users',
       where: 'username = ? AND password = ?',
       whereArgs: [username, password],
